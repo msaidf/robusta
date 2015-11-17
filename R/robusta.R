@@ -1,5 +1,5 @@
 #' @export 
-robust = function(reg, se = c('Hinkley', 'hc1', 'stata', 'White', 'hc0','HornDuncan', 'hc2', 'Efron', 'hc3', 'CribariNeto', 'hc4', 'NeweyWest', 'Andrews', 'hac', 'LumleyHeagerty', 'bk'))
+robust = function(reg, se = c('Hinkley', 'hc1', 'stata', 'White', 'hc0','HornDuncan', 'hc2', 'Efron', 'hc3', 'CribariNeto', 'hc4', 'NeweyWest', 'Andrews', 'hac', 'LumleyHeagerty', 'Arellano', 'bk'))
 {
   if(length(se) > 1) se = 'hc1'
   switch(se 
@@ -29,6 +29,17 @@ cluster = function(reg, clustervar)
   data = eval(parse(text = data), envir = .GlobalEnv)
   reg$cluster <- data[[deparse(substitute(clustervar))]]
   reg
+}
+
+coeftest_cluster <- function(model) {
+	cluster <- model$cluster
+	M <- length(unique(cluster))
+	N <- length(cluster)
+	K <- model$rank
+	dfc <- (M/(M - 1)) * ((N - 1)/(N - K))
+	uj <- apply(sandwich::estfun(model), 2, function(x) tapply(x, cluster, sum))
+	prcse.cov <- sandwich::sandwich(model, meat = crossprod(uj)/N) * dfc
+	lmtest::coeftest.default(model, rcse.cov)
 }
 
 #' @export 
@@ -79,16 +90,8 @@ summary.plm <- function(reg) {
 		, 'HC3' = {sumreg$coefficients = as.matrix(lmtest::coeftest.default(reg, vcov = plm::vcovBK(reg, type = 'HC3')))}
 		, 'HC4' = {sumreg$coefficients = as.matrix(lmtest::coeftest.default(reg, vcov = plm::vcovBK(reg, type = 'HC4')))}
 		, 'Arellano' = {sumreg$coefficients = as.matrix(lmtest::coeftest.default(reg, vcov = plm::vcovHC(reg, method = 'arellano')))}
+		)
 	sumreg
+	}
 }
-		
-coeftest_cluster <- function(model){
-   cluster <- model$cluster
-	 M <- length(unique(cluster))
-	 N <- length(cluster)
-	 K <- model$rank
-	 dfc <- (M/(M - 1)) * ((N - 1)/(N - K))
-	 uj <- apply(sandwich::estfun(model), 2, function(x) tapply(x, cluster, sum));
-	 rcse.cov <- sandwich::sandwich(model, meat = crossprod(uj)/N) * dfc
-	 coeftest.default(model, rcse.cov)
-}
+
