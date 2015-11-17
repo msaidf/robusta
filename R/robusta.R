@@ -1,5 +1,13 @@
+#' Specifying the type of robust standard error to be reported in regression summary
+#' 
+#' Summary command will identify which type of standard error to use by reading robust attribute attached by this command
+#' @param reg regression objects, for now only works for lm, glm, and plm objects 
+#' @param se type of robust standard error. The default is HC1 to make it easy to compare it with stata robust standard error. The default heteroskedasticity consistent (HC) covariance matrix in sandwich package is instead HC3, that is less affected by outlier in small sample. All types of robust standard error can be referred by the name of author who propose it. 'hc1' is equivalent to 'Hinkley', 'hc0' is equivalent to 'White', 'hc2' is equivalent to 'Horn', 'hc3' is equivalent to 'Efron', 'hc4' is equivalent to 'Cribari'. For data containing serial correlation, the available heteroscedasticity and autocorrelation consistent (HAC) standard error is 'NeweyWest', 'Andrew' that is equivalent to 'hac', and 'Lumley'. All HC types and 'arrellano' method are available for plm object in panel data analysis.  
+#' @examples 
+#' lmo = lm(mpg ~ carb + cyl, mtcars) 
+#' texreg::screenreg(list(lmo, robust(lmo), robust(lmo, 'hc3'), robust(lmo, 'White')))
 #' @export 
-robust = function(reg, se = c('Hinkley', 'hc1', 'stata', 'White', 'hc0','HornDuncan', 'hc2', 'Efron', 'hc3', 'CribariNeto', 'hc4', 'NeweyWest', 'Andrews', 'hac', 'LumleyHeagerty', 'Arellano', 'bk'))
+robust = function(reg, se = c('Hinkley', 'hc1', 'stata', 'White', 'hc0','HornDuncan', 'hc2', 'Efron', 'hc3', 'CribariNeto', 'hc4', 'NeweyWest', 'Andrews', 'hac', 'Lumley', 'Arellano'))
 {
   if(length(se) > 1) se = 'hc1'
   switch(se 
@@ -22,6 +30,14 @@ robust = function(reg, se = c('Hinkley', 'hc1', 'stata', 'White', 'hc0','HornDun
 	reg
 }
 
+#' Setting cluster robust standard error to be reported in regression summary
+#' 
+#' Summary command will use the cluster variable attached by this command to the regression object to calculate cluster robust standard error
+#' @param reg regression objects, for now only works for lm, glm
+#' @param clustervar the clustering variable in the data frame that is used for regression. The name of data frame need not to be mentioned since it will be read from the object's call.
+#' @examples 
+#' lmo = lm(mpg ~ carb + cyl, mtcars) 
+#' texreg::screenreg(list(lmo, cluster(lmo, am)))
 #' @export 
 cluster = function(reg, clustervar)
 {
@@ -38,7 +54,7 @@ coeftest_cluster <- function(model) {
 	K <- model$rank
 	dfc <- (M/(M - 1)) * ((N - 1)/(N - K))
 	uj <- apply(sandwich::estfun(model), 2, function(x) tapply(x, cluster, sum))
-	prcse.cov <- sandwich::sandwich(model, meat = crossprod(uj)/N) * dfc
+	rcse.cov <- sandwich::sandwich(model, meat = crossprod(uj)/N) * dfc
 	lmtest::coeftest.default(model, rcse.cov)
 }
 
