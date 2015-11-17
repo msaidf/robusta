@@ -1,5 +1,6 @@
 # robusta
 easily replace standard error with the robust one.
+![Coffee](https://pixabay.com/static/uploads/photo/2015/03/05/14/09/coffee-660409_640.jpg)
 
 In statistical analysis, it is become a standard way to report regression results using alternative standard error that is robust to heteroscedasticity and serial correlation. Sandwich package already provide a way to calculate robust standard error for various estimators. However, it is not convenient to include the produced standard error into automatically generated publication-ready table using packages such as texreg, stargazer, etc. 
 
