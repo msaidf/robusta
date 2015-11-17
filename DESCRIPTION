@@ -1,0 +1,13 @@
+Package: robusta
+Title: provide convenient way to report robust standard error of regression
+Version: 0.1
+Authors@R: "Muhamad Said Fathurrohman <muh.said@gmail.com> [aut, cre]"
+Description: provide convenient way to report robust standard error of regression. It does that by masking summary function for regression objects and replace the standard error with that coming from sandwich packages.
+Depends: 
+	R (>= 3.1.2),
+Imports:
+	lmtest (>= 0.9),
+	sandwich (>= 2.3),
+	plm (>= 1.4)
+License: GNU License
+LazyData: true

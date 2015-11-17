@@ -5,19 +5,35 @@ In statistical analysis, it is become a standard way to report regression result
 
 RMS package has a convenient robcov function that replace the original covariance matrix with the robust one, but returning object with the same class so that it can be directly used by the automatic table generation pakcages. However this function currently handles only object created by other functions within the same package.
 
-This package provide robcov function that will works with many object types of standard packages, such as lm, glm, plm, etc.
+This package provide `robust` function that will works with many object types of standard packages (currently only work for lm, glm, and plm objects).
 
-## Examples
+### Examples
 ```
-lmo = lm(y ~ x, data)
-lmo = robcov(lmo) # replace standard error with huber-white heteroscedasticity-robust standard error
-texreg(lmo) # produce latex table
+lmo = lm(mpg ~ carb + cyl, mtcars)
+lmo = robust(lmo) # replace standard error with huber-white heteroscedasticity-robust standard error
+# or more succinctly using piping
+lmo = lm(mpg ~ carb + cyl, mtcars) %>% robust
+# now summarizing regression objects and generating summary table of results will use the robust standard error
+summary(lmo)
+texreg::screenreg(lmo) 
 ```
 
-robcov provides option to alternatives standard error HC0-HC4 that is provided by sandwich package, but using easier to remember naming.
+`robust` provides options to alternatives robust standard error HC0-HC4 that is provided by sandwich package, but using alternative naming to make it easier to remember.
 ```
-robcov(lmo, se='hw') # huber-white standard error, the default, equivalent to HC1 in sandwich package and is comparable to stata's robust
-robcov(lmo, se='nw') # newey-west method that is robust to heteroscedasticity and serial correlation, equivalent to vcovBK
+robust(lmo, 'hc1') # the default, comparable to stata's robust standard error
+robust(lmo) 
+robust(lmo, 'NeweyWest') # newey-west method that is robust to heteroscedasticity and serial correlation
 ```
-...
+
+## Clustered
+`cluster` replace standard error with cluster-proof standard error
+```
+lmo = lm(mpg ~ carb + cyl, mtcars) %>% cluster(am)
+```
+
+## Installation
+```
+# install.packages('devtools')
+devtools::install_github('msaidf/robusta')
+```
 
