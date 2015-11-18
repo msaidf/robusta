@@ -43,7 +43,8 @@ cluster = function(reg, clustervar)
 {
   data = as.character(reg$call)[3]
   data = eval(parse(text = data), envir = .GlobalEnv)
-  reg$cluster <- data[[deparse(substitute(clustervar))]]
+  clustervar = deparse(substitute(clustervar))
+  reg$cluster <- as.data.frame(data)[complete.cases( dplyr::select(data, one_of(names(reg$model)))),clustervar]
   reg
 }
 
